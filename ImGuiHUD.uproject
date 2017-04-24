@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.15",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "ImGuiHUD",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
