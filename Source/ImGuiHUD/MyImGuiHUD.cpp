@@ -79,6 +79,8 @@ bool AMyImGuiHUD::ImGui_ImplUE_Init()
 
 void AMyImGuiHUD::ImGui_ImplUE_Shutdown()
 {
+	ImGui_ImplUE_InvalidateDeviceObjects();
+	ImGui::Shutdown();
 }
 
 bool AMyImGuiHUD::ImGui_ImplUE_CreateDeviceObjects()
@@ -105,6 +107,7 @@ bool AMyImGuiHUD::ImGui_ImplUE_CreateDeviceObjects()
 
 void AMyImGuiHUD::ImGui_ImplUE_InvalidateDeviceObjects()
 {
+	FontTexture = NULL;
 }
 
 void AMyImGuiHUD::ImGui_ImplUE_ProcessEvent()
