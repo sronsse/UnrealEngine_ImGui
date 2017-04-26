@@ -30,11 +30,18 @@ AMyImGuiHUD::AMyImGuiHUD() :
 	Super(),
 	FontTexture(NULL)
 {
+	// Get master material reference
+	static ConstructorHelpers::FObjectFinder<UMaterial> mat(TEXT("Material'/Game/Material.Material'"));
+	MasterMaterial = mat.Object;
 }
 
 void AMyImGuiHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	// Create dynamic material instance
+	if (MasterMaterial)
+		MaterialInstance = UMaterialInstanceDynamic::Create(MasterMaterial, NULL);
 
 	// Setup ImGui binding
 	ImGui_ImplUE_Init();
@@ -46,6 +53,9 @@ void AMyImGuiHUD::BeginDestroy()
 
 	// Cleanup
 	ImGui_ImplUE_Shutdown();
+
+	MasterMaterial = NULL;
+	MaterialInstance = NULL;
 }
 
 void AMyImGuiHUD::DrawHUD()

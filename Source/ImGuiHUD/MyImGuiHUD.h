@@ -33,4 +33,10 @@ class IMGUIHUD_API AMyImGuiHUD : public AHUD
 
 	UPROPERTY()
 	UTexture2D *FontTexture;
+
+	UPROPERTY()
+	UMaterialInterface *MasterMaterial;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic *MaterialInstance;
 };
