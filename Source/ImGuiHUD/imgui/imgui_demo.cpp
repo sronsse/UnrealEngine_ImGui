@@ -5,6 +5,9 @@
 // You can call ImGui::ShowTestWindow() in your code to learn about various features of ImGui.
 // Everything in this file will be stripped out by the linker if you don't call ImGui::ShowTestWindow().
 
+// All source files in module must include the same precompiled header first
+#include <ImGuiHUD.h>
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif

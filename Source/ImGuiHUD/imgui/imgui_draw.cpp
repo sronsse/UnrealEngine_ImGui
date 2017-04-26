@@ -8,6 +8,9 @@
 // - ImFont
 // - Default font data
 
+// All source files in module must include the same precompiled header first
+#include <ImGuiHUD.h>
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
