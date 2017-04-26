@@ -2,7 +2,10 @@
 
 #include "ImGuiHUD.h"
 #include "ImGuiHUDGameModeBase.h"
+#include "MyImGuiHUD.h"
 
-
-
-
+AImGuiHUDGameModeBase::AImGuiHUDGameModeBase() :
+	Super()
+{
+	HUDClass = AMyImGuiHUD::StaticClass();
+}

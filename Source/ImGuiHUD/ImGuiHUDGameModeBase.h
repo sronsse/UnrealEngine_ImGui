@@ -13,7 +13,5 @@ class IMGUIHUD_API AImGuiHUDGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+	AImGuiHUDGameModeBase();
 };
