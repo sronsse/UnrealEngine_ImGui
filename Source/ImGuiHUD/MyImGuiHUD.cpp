@@ -116,6 +116,23 @@ void AMyImGuiHUD::ImGui_ImplUE_ProcessEvent()
 
 void AMyImGuiHUD::ImGui_ImplUE_NewFrame()
 {
+	if (!FontTexture)
+		ImGui_ImplUE_CreateDeviceObjects();
+
+	ImGuiIO &io = ImGui::GetIO();
+
+	// Setup display size
+	io.DisplaySize = ImVec2((float)Canvas->SizeX, (float)Canvas->SizeY);
+	io.DisplayFramebufferScale = ImVec2(1, 1);
+
+	// Setup inputs
+	APlayerController *pc = GetOwningPlayerController();
+	pc->GetMousePosition(io.MousePos.x, io.MousePos.y);
+	io.MouseDown[0] = pc->IsInputKeyDown(EKeys::LeftMouseButton);
+	io.MouseDown[1] = pc->IsInputKeyDown(EKeys::RightMouseButton);
+	io.MouseDown[2] = pc->IsInputKeyDown(EKeys::MiddleMouseButton);
+
+	ImGui::NewFrame();
 }
 
 void AMyImGuiHUD::ImGui_ImplUE_RenderDrawLists(ImDrawData *draw_data)
