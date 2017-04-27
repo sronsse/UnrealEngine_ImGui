@@ -66,6 +66,9 @@ void AMyImGuiHUD::DrawHUD()
 	// Prepare new frame
 	ImGui_ImplUE_NewFrame();
 
+	// Show ImGui test window
+	ImGui::ShowTestWindow();
+
 	// Rendering
 	ImGui::Render();
 }
