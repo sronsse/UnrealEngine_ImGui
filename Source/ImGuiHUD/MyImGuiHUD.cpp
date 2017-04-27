@@ -84,6 +84,9 @@ bool AMyImGuiHUD::ImGui_ImplUE_Init()
 	io.GetClipboardTextFn = ImGui_ImplUE_GetClipboardText;
 	io.UserData = this;
 
+	// Enable mouse cursor rendering
+	io.MouseDrawCursor = true;
+
 	return true;
 }
 
