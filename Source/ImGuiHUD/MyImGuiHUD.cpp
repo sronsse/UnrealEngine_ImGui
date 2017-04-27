@@ -147,6 +147,74 @@ void AMyImGuiHUD::ImGui_ImplUE_NewFrame()
 
 void AMyImGuiHUD::ImGui_ImplUE_RenderDrawLists(ImDrawData *draw_data)
 {
+	// Avoid rendering when minimized
+	ImGuiIO &io = ImGui::GetIO();
+	int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
+	int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
+	if ((fb_width == 0) || (fb_height == 0))
+		return;
+
+	// Scale coordinates for retina displays(screen coordinates != framebuffer coordinates)
+	draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+
+	// Render command lists
+	AMyImGuiHUD *hud = (AMyImGuiHUD *)io.UserData;
+	for (int n = 0; n < draw_data->CmdListsCount; n++)
+	{
+		const ImDrawList *cmd_list = draw_data->CmdLists[n];
+		const ImDrawVert *vtx_buffer = cmd_list->VtxBuffer.Data;
+		const ImDrawIdx *idx_buffer = cmd_list->IdxBuffer.Data;
+
+		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+		{
+			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+
+			// Call user-defined callback and continue if needed
+			if (pcmd->UserCallback)
+			{
+				pcmd->UserCallback(cmd_list, pcmd);
+				continue;
+			}
+
+			// Bind texture
+			hud->MaterialInstance->SetTextureParameterValue(FName("param"), (UTexture *)pcmd->TextureId);
+
+			// Parse all render commands
+			for (unsigned int elem = 0; elem < pcmd->ElemCount / 3; elem++)
+			{
+				// Get vertices using vertex and index buffers
+				ImDrawVert v[] =
+				{
+					cmd_list->VtxBuffer[idx_buffer[elem * 3]],
+					cmd_list->VtxBuffer[idx_buffer[elem * 3 + 1]],
+					cmd_list->VtxBuffer[idx_buffer[elem * 3 + 2]]
+				};
+
+				// Get vertex colors as vectors
+				ImVec4 col[] =
+				{
+					ImGui::ColorConvertU32ToFloat4(v[0].col),
+					ImGui::ColorConvertU32ToFloat4(v[1].col),
+					ImGui::ColorConvertU32ToFloat4(v[2].col)
+				};
+
+				// Draw single triangle
+				hud->DrawMaterialTriangle(hud->MaterialInstance,
+					FVector2D(v[0].pos.x, v[0].pos.y),
+					FVector2D(v[1].pos.x, v[1].pos.y),
+					FVector2D(v[2].pos.x, v[2].pos.y),
+					FVector2D(v[0].uv.x, v[0].uv.y),
+					FVector2D(v[1].uv.x, v[1].uv.y),
+					FVector2D(v[2].uv.x, v[2].uv.y),
+					FLinearColor(col[0].x, col[0].y, col[0].z, col[0].w),
+					FLinearColor(col[1].x, col[1].y, col[1].z, col[1].w),
+					FLinearColor(col[2].x, col[2].y, col[2].z, col[2].w));
+			}
+
+			// Update index buffer pointer
+			idx_buffer += pcmd->ElemCount;
+		}
+	}
 }
 
 const char *AMyImGuiHUD::ImGui_ImplUE_GetClipboardText()
