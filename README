@@ -1,0 +1,47 @@
+Unreal Engine ImGui "port" <https://github.com/sronsse/UnrealEngine_ImGui>
+
+DESCRIPTION
+  This repository contains an Unreal Engine project with Omar Cornut's ImGui
+  framework (https://github.com/ocornut/imgui) integrated into a HUD class.
+  The code base, by default, will display the test window provided as part
+  of ImGui.
+
+  Disclaimer: I am not an Unreal Engine nor an ImGui expert, so this code
+  base is by no means guaranteed to be optimal.
+
+VERSIONS
+  Please find below the versions of both frameworks which were used:
+  - Unreal Engine v4.15
+  - ImGui v1.49
+
+KNOWN LIMITATIONS
+  Performance: the ImGui framework will pass index and vertex buffers as part
+  of the command lists to be rendered. Unreal Engine does not seem to support
+  this rather common method of rendering geometry at a high-level. In order
+  to circumvent this issue, each triangle is manually extracted/recomposed
+  from these buffers and rendered via the HUD class DrawMaterialTriangle
+  method. This could severely impact performance.
+
+  Clipping: part of the command lists to be rendered by ImGui provide as an
+  input a clipping rectangle parameter, which typically is handled through
+  scissoring functions (pixels falling outside of the rectangle are fully
+  discarded). As Unreal Engine does not seem to support clipping rectangles
+  when manually rendering triangle sets, all vertex positions along with
+  their texture coordinates are altered to adapt to ImGui's requirements.
+  While no issues were observed during functional testing, some unsupported
+  edge cases may still exist.
+
+  Keyboard input: the methods provided by Unreal Engine within the HUD class
+  seem somewhat limited. Rather than implementing an event mechanism with a
+  callback function, the HUD class manually polls for detected scan codes,
+  which does have an impact in performance. Moreoever, the current code base
+  in place deals with scan codes and convert them to UTF8 input on the fly
+  for use with ImGui's text input widgets - this has a huge drawback: some
+  characters simply are not supported at all for now (symbols located above
+  numbers on a QWERTY keyboard in particular). Feedback on how to properly
+  implement a generic input function recognizing all key combinations from
+  that level is welcome.
+  
+HELP
+  If you need help with this port or would like to submit pull requests, feel
+  free to do so via the github interface or contact me at sronsse@gmail.com.
