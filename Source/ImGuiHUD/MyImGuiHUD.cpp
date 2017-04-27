@@ -324,9 +324,18 @@ void AMyImGuiHUD::ImGui_ImplUE_RenderDrawLists(ImDrawData *draw_data)
 
 const char *AMyImGuiHUD::ImGui_ImplUE_GetClipboardText()
 {
-	return NULL;
+	FString text;
+	FWindowsPlatformMisc::ClipboardPaste(text);
+	FTCHARToUTF8 result(*text);
+	return result.Get();
 }
 
 void AMyImGuiHUD::ImGui_ImplUE_SetClipboardText(const char *text)
 {
+	int new_size = strlen(text) + 1;
+	TCHAR *new_str = new TCHAR[new_size];
+	size_t convertedChars = 0;
+	mbstowcs_s(&convertedChars, new_str, new_size, text, _TRUNCATE);
+	FWindowsPlatformMisc::ClipboardCopy(new_str);
+	delete [] new_str;
 }
