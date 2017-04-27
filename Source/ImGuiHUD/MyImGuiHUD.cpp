@@ -198,6 +198,61 @@ void AMyImGuiHUD::ImGui_ImplUE_RenderDrawLists(ImDrawData *draw_data)
 					ImGui::ColorConvertU32ToFloat4(v[2].col)
 				};
 
+				// Compute min/max positions
+				ImVec2 min_pos = v[0].pos;
+				ImVec2 max_pos = v[0].pos;
+				for (int i = 0; i < 3; i++)
+				{
+					if (v[i].pos.x < min_pos.x)
+						min_pos.x = v[i].pos.x;
+					if (v[i].pos.y < min_pos.y)
+						min_pos.y = v[i].pos.y;
+					if (v[i].pos.x > max_pos.x)
+						max_pos.x = v[i].pos.x;
+					if (v[i].pos.y > max_pos.y)
+						max_pos.y = v[i].pos.y;
+				}
+
+				// Compute min/max UVs
+				ImVec2 min_uv = v[0].uv;
+				ImVec2 max_uv = v[0].uv;
+				for (int i = 0; i < 3; i++)
+				{
+					if (v[i].uv.x < min_uv.x)
+						min_uv.x = v[i].uv.x;
+					if (v[i].uv.y < min_uv.y)
+						min_uv.y = v[i].uv.y;
+					if (v[i].uv.x > max_uv.x)
+						max_uv.x = v[i].uv.x;
+					if (v[i].uv.y > max_uv.y)
+						max_uv.y = v[i].uv.y;
+				}
+
+				// Adapt vertex positions and UVs based on clipping parameters
+				for (int i = 0; i < 3; i++)
+				{
+					if (v[i].pos.x < pcmd->ClipRect.x)
+					{
+						v[i].uv.x += (max_uv.x - v[i].uv.x) * (pcmd->ClipRect.x - v[i].pos.x) / (max_pos.x - v[i].pos.x);
+						v[i].pos.x = pcmd->ClipRect.x;
+					}
+					else if (v[i].pos.x > pcmd->ClipRect.z)
+					{
+						v[i].uv.x -= (v[i].uv.x - min_uv.x) * (v[i].pos.x - pcmd->ClipRect.z) / (v[i].pos.x - min_pos.x);
+						v[i].pos.x = pcmd->ClipRect.z;
+					}
+					if (v[i].pos.y < pcmd->ClipRect.y)
+					{
+						v[i].uv.y += (max_uv.y - v[i].uv.y) * (pcmd->ClipRect.y - v[i].pos.y) / (max_pos.y - v[i].pos.y);
+						v[i].pos.y = pcmd->ClipRect.y;
+					}
+					else if (v[i].pos.y > pcmd->ClipRect.w)
+					{
+						v[i].uv.y -= (v[i].uv.y - min_uv.y) * (v[i].pos.y - pcmd->ClipRect.w) / (v[i].pos.y - min_pos.y);
+						v[i].pos.y = pcmd->ClipRect.w;
+					}
+				}
+
 				// Draw single triangle
 				hud->DrawMaterialTriangle(hud->MaterialInstance,
 					FVector2D(v[0].pos.x, v[0].pos.y),
