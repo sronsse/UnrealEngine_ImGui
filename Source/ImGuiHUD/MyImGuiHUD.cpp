@@ -122,6 +122,56 @@ void AMyImGuiHUD::ImGui_ImplUE_InvalidateDeviceObjects()
 
 void AMyImGuiHUD::ImGui_ImplUE_ProcessEvent()
 {
+	ImGuiIO &io = ImGui::GetIO();
+
+	// Fill KeysDown array
+	APlayerController *pc = GetOwningPlayerController();
+	for (int i = 0; i < ImGuiKey_COUNT; i++)
+		io.KeysDown[i] = pc->IsInputKeyDown(*KeyMap[i]);
+
+	// Fill special keys
+	io.KeyShift = pc->IsInputKeyDown(EKeys::LeftShift) || pc->IsInputKeyDown(EKeys::RightShift);
+	io.KeyCtrl = pc->IsInputKeyDown(EKeys::LeftControl) || pc->IsInputKeyDown(EKeys::RightControl);
+	io.KeyAlt = pc->IsInputKeyDown(EKeys::LeftAlt) || pc->IsInputKeyDown(EKeys::RightAlt);
+	io.KeySuper = false;
+
+	// Parse all keys
+	TArray<FKey> keys;
+	EKeys::GetAllKeys(keys);
+	for (int i = 0; i < keys.Num(); i++)
+	{
+		// Validate keyboard input
+		bool keyboard = !keys[i].IsMouseButton() &&
+			!keys[i].IsModifierKey() &&
+			!keys[i].IsGamepadKey() &&
+			!keys[i].IsFloatAxis() &&
+			!keys[i].IsVectorAxis();
+		if (!keyboard)
+			continue;
+
+		// Check if key was pressed
+		if (pc->WasInputKeyJustPressed(keys[i]))
+		{
+			// Get codes
+			const uint32 *key_code = NULL;
+			const uint32 *char_code = NULL;
+			FInputKeyManager::Get().GetCodesFromKey(keys[i], key_code, char_code);
+
+			// Only consider key press if char code is valid
+			if (char_code)
+			{
+				// Get lower case version of character
+				int c = tolower((int)*char_code);
+
+				// Set character to upper case if shift was pressed
+				if (pc->IsInputKeyDown(EKeys::LeftShift) || pc->IsInputKeyDown(EKeys::RightShift))
+					c = toupper(c);
+
+				// Report character input to ImGui
+				io.AddInputCharacter((ImWchar)c);
+			}
+		}
+	}
 }
 
 void AMyImGuiHUD::ImGui_ImplUE_NewFrame()
