@@ -235,7 +235,8 @@ void AMyImGuiHUD::ImGui_ImplUE_RenderDrawLists(ImDrawData *draw_data)
 			// Bind texture
 			hud->MaterialInstance->SetTextureParameterValue(FName("param"), (UTexture *)pcmd->TextureId);
 
-			// Parse all render commands
+			// Parse all render commands and build triangle list
+			TArray<FCanvasUVTri> triangles;
 			for (unsigned int elem = 0; elem < pcmd->ElemCount / 3; elem++)
 			{
 				// Get vertices using vertex and index buffers
@@ -309,18 +310,22 @@ void AMyImGuiHUD::ImGui_ImplUE_RenderDrawLists(ImDrawData *draw_data)
 					}
 				}
 
-				// Draw single triangle
-				hud->DrawMaterialTriangle(hud->MaterialInstance,
-					FVector2D(v[0].pos.x, v[0].pos.y),
-					FVector2D(v[1].pos.x, v[1].pos.y),
-					FVector2D(v[2].pos.x, v[2].pos.y),
-					FVector2D(v[0].uv.x, v[0].uv.y),
-					FVector2D(v[1].uv.x, v[1].uv.y),
-					FVector2D(v[2].uv.x, v[2].uv.y),
-					FLinearColor(col[0].x, col[0].y, col[0].z, col[0].w),
-					FLinearColor(col[1].x, col[1].y, col[1].z, col[1].w),
-					FLinearColor(col[2].x, col[2].y, col[2].z, col[2].w));
+				// Build and push triangle to list
+				FCanvasUVTri triangle;
+				triangle.V0_Pos = FVector2D(v[0].pos.x, v[0].pos.y);
+				triangle.V1_Pos = FVector2D(v[1].pos.x, v[1].pos.y);
+				triangle.V2_Pos = FVector2D(v[2].pos.x, v[2].pos.y);
+				triangle.V0_UV = FVector2D(v[0].uv.x, v[0].uv.y);
+				triangle.V1_UV = FVector2D(v[1].uv.x, v[1].uv.y);
+				triangle.V2_UV = FVector2D(v[2].uv.x, v[2].uv.y);
+				triangle.V0_Color = FLinearColor(col[0].x, col[0].y, col[0].z, col[0].w);
+				triangle.V1_Color = FLinearColor(col[1].x, col[1].y, col[1].z, col[1].w);
+				triangle.V2_Color = FLinearColor(col[2].x, col[2].y, col[2].z, col[2].w);
+				triangles.Push(triangle);
 			}
+
+			// Draw triangles
+			hud->Canvas->K2_DrawMaterialTriangle(hud->MaterialInstance, triangles);
 
 			// Update index buffer pointer
 			idx_buffer += pcmd->ElemCount;
